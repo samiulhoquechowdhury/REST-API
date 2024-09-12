@@ -1,11 +1,12 @@
 import app from "./src/app";
+import { config } from "./src/config/config";
 
-const startServr = () => {
-  const PORT = process.env.PORT || 3000;
+const startServer = () => {
+  const port = config.port || 3000;
 
-  app.listen(PORT, () => {
-    console.log(`Listening at port  ${PORT}`);
+  app.listen(port, () => {
+    console.log(`Listening at port  ${port}`);
   });
 };
 
-startServr();
+startServer();
