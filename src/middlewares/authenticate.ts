@@ -1,19 +1,27 @@
-import { Request, Response, NextFunction } from "express";
-import { HttpError } from "http-errors";
+import { NextFunction, Request, Response } from "express";
+import createHttpError from "http-errors";
+import { verify } from "jsonwebtoken";
 import { config } from "../config/config";
 
-const globalErrorHandler = (
-  err: HttpError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const statusCode = err.statusCode || 500;
+export interface AuthRequest extends Request {
+  userId: string;
+}
+const authenticate = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.header("Authorization");
+  if (!token) {
+    return next(createHttpError(401, "Authorization token is required."));
+  }
 
-  return res.status(statusCode).json({
-    message: err.message,
-    errorStack: config.env === "development" ? err.stack : "",
-  });
+  try {
+    const parsedToken = token.split(" ")[1];
+    const decoded = verify(parsedToken, config.jwtSecret as string);
+    const _req = req as AuthRequest;
+    _req.userId = decoded.sub as string;
+
+    next();
+  } catch (err) {
+    return next(createHttpError(401, "Token expired."));
+  }
 };
 
-export default globalErrorHandler;
+export default authenticate;
