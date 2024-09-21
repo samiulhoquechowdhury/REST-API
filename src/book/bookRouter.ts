@@ -8,7 +8,7 @@ import {
   updateBook,
 } from "./bookController";
 import multer from "multer";
-// import authenticate from "../middlewares/authenticate";
+import authenticate from "../middlewares/authenticate";
 
 const bookRouter = express.Router();
 
